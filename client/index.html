@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NodeJS sample</title>
+    <style></style>
+</head>
+<body>
+
+    <progress id="progressBar" max="100" value="0"></progress>
+
+    <div>
+        <a href="/job" target="newjob">Restart job</a>
+    </div>
+
+<script>
+
+    function updateProgressBar(value, max) {
+        var progressBar = document.getElementById("progressBar");
+        progressBar.setAttribute("max", max);
+        progressBar.setAttribute("value", value);
+    }
+
+    function checkState() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'jobstate.json', true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState != 4) return;
+            if (xhr.status == 400) {
+                //alert("No jobs started, use /job url to start a new one");
+            } else if (xhr.status != 200) {
+                //alert(xhr.status + ': ' + xhr.statusText);
+            } else {
+                var jobState = JSON.parse(xhr.responseText);
+                updateProgressBar(jobState.millisecondsPassed,
+                                  jobState.maxSeconds * 1000);
+            }
+
+            setTimeout(checkState, 100);
+        };
+        xhr.send();
+    }
+
+    checkState();
+
+</script>
+
+
+</body>
+</html>
